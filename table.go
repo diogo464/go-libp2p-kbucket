@@ -112,6 +112,22 @@ func (rt *RoutingTable) NPeersForCpl(cpl uint) int {
 	}
 }
 
+// Returns the Peer ID's in each bucket
+func (rt *RoutingTable) DumpBuckets() [][]peer.ID {
+	rt.tabLock.RLock()
+	defer rt.tabLock.RUnlock()
+
+	buckets := make([][]peer.ID, len(rt.buckets))
+	for bindex, bucket := range rt.buckets {
+		for e := bucket.list.Front(); e != nil; e = e.Next() {
+			p := e.Value.(*PeerInfo)
+			buckets[bindex] = append(buckets[bindex], p.Id)
+		}
+	}
+
+	return buckets
+}
+
 // TryAddPeer tries to add a peer to the Routing table.
 // If the peer ALREADY exists in the Routing Table and has been queried before, this call is a no-op.
 // If the peer ALREADY exists in the Routing Table but hasn't been queried before, we set it's LastUsefulAt value to
