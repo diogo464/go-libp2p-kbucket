@@ -128,6 +128,11 @@ func (rt *RoutingTable) DumpBuckets() [][]peer.ID {
 	return buckets
 }
 
+func (rt *RoutingTable) CommonPrefixLen(p peer.ID) int {
+	peerID := ConvertPeerID(p)
+	return CommonPrefixLen(peerID, rt.local)
+}
+
 // TryAddPeer tries to add a peer to the Routing table.
 // If the peer ALREADY exists in the Routing Table and has been queried before, this call is a no-op.
 // If the peer ALREADY exists in the Routing Table but hasn't been queried before, we set it's LastUsefulAt value to
