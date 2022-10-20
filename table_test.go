@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/libp2p/go-libp2p-core/peer"
-	"github.com/libp2p/go-libp2p-core/test"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/test"
 
 	"github.com/libp2p/go-libp2p-kbucket/peerdiversity"
-	pstore "github.com/libp2p/go-libp2p-peerstore"
+	pstore "github.com/libp2p/go-libp2p/p2p/host/peerstore"
 
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/stretchr/testify/require"
@@ -155,8 +155,10 @@ func TestEmptyBucketCollapse(t *testing.T) {
 
 	// add peer with cpl 0 and cpl 1 and verify we have two buckets.
 	b, err = rt.TryAddPeer(p1, true, false)
+	require.NoError(t, err)
 	require.True(t, b)
 	b, err = rt.TryAddPeer(p2, true, false)
+	require.NoError(t, err)
 	require.True(t, b)
 	rt.tabLock.Lock()
 	require.Len(t, rt.buckets, 2)

@@ -5,7 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p/core/peer"
 
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/stretchr/testify/require"
@@ -20,8 +20,6 @@ type mockPeerGroupFilter struct {
 
 	peerAddressFunc func(p peer.ID) []ma.Multiaddr
 	allowFnc        func(g PeerGroupInfo) bool
-	incrementFunc   func(g PeerGroupInfo)
-	dectementFunc   func(g PeerGroupInfo)
 }
 
 func (m *mockPeerGroupFilter) Allow(g PeerGroupInfo) (allow bool) {
@@ -78,12 +76,7 @@ func TestDiversityFilter(t *testing.T) {
 				m.peerAddressFunc = func(id peer.ID) []ma.Multiaddr {
 					return []ma.Multiaddr{ma.StringCast("/ip4/127.0.0.1/tcp/0")}
 				}
-				m.allowFnc = func(g PeerGroupInfo) bool {
-					if g.Id == "p1" {
-						return true
-					}
-					return false
-				}
+				m.allowFnc = func(g PeerGroupInfo) bool { return g.Id == "p1" }
 			},
 			allowed: map[peer.ID]bool{
 				"p1": true,
@@ -101,19 +94,11 @@ func TestDiversityFilter(t *testing.T) {
 					if id == "p1" {
 						return []ma.Multiaddr{ma.StringCast("/ip4/127.0.0.1/tcp/0"),
 							ma.StringCast("/ip4/127.0.0.1/tcp/0")}
-					} else {
-						return []ma.Multiaddr{ma.StringCast("/ip4/127.0.0.1/tcp/0"),
-							ma.StringCast("/ip4/192.168.1.1/tcp/0")}
 					}
-
+					return []ma.Multiaddr{ma.StringCast("/ip4/127.0.0.1/tcp/0"),
+						ma.StringCast("/ip4/192.168.1.1/tcp/0")}
 				}
-				m.allowFnc = func(g PeerGroupInfo) bool {
-					if g.IPGroupKey == "127.0.0.0" {
-						return true
-					}
-
-					return false
-				}
+				m.allowFnc = func(g PeerGroupInfo) bool { return g.IPGroupKey == "127.0.0.0" }
 			},
 			allowed: map[peer.ID]bool{
 				"p1": true,
@@ -242,7 +227,7 @@ type mockAsnStore struct {
 	reply string
 }
 
-func (m *mockAsnStore) AsnForIPv6(ip net.IP) (string, error) {
+func (m *mockAsnStore) AsnForIPv6(net.IP) (string, error) {
 	return m.reply, nil
 }
 
@@ -280,10 +265,10 @@ func TestGetDiversityStats(t *testing.T) {
 	p4 := peer.ID("bb")
 
 	paddrs := map[peer.ID][]ma.Multiaddr{
-		p1: []ma.Multiaddr{ma.StringCast("/ip4/17.0.0.1/tcp/0"), ma.StringCast("/ip4/19.1.1.0")},
-		p2: []ma.Multiaddr{ma.StringCast("/ip4/18.1.0.1/tcp/0")},
-		p3: []ma.Multiaddr{ma.StringCast("/ip4/19.2.0.1/tcp/0")},
-		p4: []ma.Multiaddr{ma.StringCast("/ip4/20.3.0.1/tcp/0")},
+		p1: {ma.StringCast("/ip4/17.0.0.1/tcp/0"), ma.StringCast("/ip4/19.1.1.0")},
+		p2: {ma.StringCast("/ip4/18.1.0.1/tcp/0")},
+		p3: {ma.StringCast("/ip4/19.2.0.1/tcp/0")},
+		p4: {ma.StringCast("/ip4/20.3.0.1/tcp/0")},
 	}
 
 	m := newMockPeerGroupFilter()
